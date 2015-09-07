@@ -1,0 +1,27 @@
+TARIH gg/aa/yyyy
+21/03/2015
+21/06/2015
+22/09/2015
+21/12/2015
+
+YER enlem boylam dilim // enlem<55 olmali
+Istanbul 41 29 Turkey
+Ankara 39.9 32.9 Turkey
+Karaman 37.2 33.2 Turkey
+Mekke 21.4 39.8
+Ekvator 0 0
+Paris 48.9 2.3 CET
+Londra 51.5 0 WET
+Boston 42.4 -71.1 US/Eastern
+Berkeley 37.8 -122.3 US/Pacific
+Hatali veriler kabul degil
+Antalya 36.9   Hata boylam yok
+Oslo 60 10.7   Hata enlem>55
+Artvin 41,2 42 Hata virgul
+
+YONTEM imsakAcisi yatsiAcisi // varsa temkin sureleri
+Diyanet 18 17 -2 -6 7 4 8 2
+MWL 18 17
+ISNA 15 15
+Suleymaniye 12 12
+
