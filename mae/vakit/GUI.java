@@ -6,12 +6,13 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
+import java.util.TimeZone;
 
 public class GUI implements Runnable {
 
     static final String 
         MSG = "Günümüz böyle geçiyor", FILE = "Vakit.txt",
-        TITLE = " için güneþ saati -- ", VER = "V2.0",
+        TITLE = " için güneþ saati -- ", VER = "V2.1",
         TIP = "<HTML>Mavi: sabah-akþam <BR>Sarý: öðle-ikindi "
              +"<BR>Siyah: yatsý <BR>Kýrmýzý: kerahat";
     static final Toolkit TK = Toolkit.getDefaultToolkit();
@@ -39,6 +40,7 @@ public class GUI implements Runnable {
         DARK  = new Color(235, 215, 0);  //dark yellow
     static final int[] curve = new int[W];
     static final String[] d2s = new String[24];
+    static final SimpleDateFormat DATE = new SimpleDateFormat("dd/MM/yyyy");
     static { 
         UIManager.put("ToolTip.font", NORM); 
         // String[] used in drawClock()
@@ -49,10 +51,10 @@ public class GUI implements Runnable {
            curve[d] = H1 - (int)Math.round(M*Math.cos(Math.PI*d/W)); 
         // for Java 6 
         java.util.TimeZone.setDefault(Location.DEFAULT.zone);
+        DATE.setTimeZone(TimeZone.getTimeZone("GMT")); 
     }
 
     final JFrame frm = new JFrame(TITLE+VER);
-    final Panel pan = new Panel();
     final JLabel lab = new JLabel(" ");  //shows time
     JComboBox menuD;  //<String> menuD;
     JComboBox menuL;  //<Location> menuL;
@@ -61,64 +63,64 @@ public class GUI implements Runnable {
     final JButton but2 = new JButton();   //toggle fast/pause
     final Color[] col = new Color[W];
     final int[] shade = new int[W];
-    final Vakit V = new Vakit(this);
+    final Vakit model = new Vakit(this);
+    final Panel  view = new Panel();
+    final Ear control = new Ear();
     Thread thd;
     int state = 1;  // s<0 -> fast,  s=0 -> clock,  s>0 count down
     int x;  // pixels since noon  -W<x<W  -- K*x in minutes
     String alfa; // altitude -- uses C0, C1
     
     public GUI() {
-        //V.trace = true;
-        Ear ear = new Ear();
         JPanel cp = new JPanel(new BorderLayout(GAP/2, GAP/2));
         cp.setBorder(new EmptyBorder(GAP, GAP, GAP/2, GAP)); 
-        pan.setPreferredSize(new Dimension(2*W, H1+H2+DELTA+1));
-        pan.addMouseListener(ear);
-        cp.add(pan, "Center"); 
+        view.setPreferredSize(new Dimension(2*W, H1+H2+DELTA+1));
+        view.addMouseListener(control);
+        cp.add(view, "Center"); 
         
         lab.setFont(LARGE);
         //lab.setToolTipText("Gerçek saat");
         but1.setFont(NORM);
         but1.setToolTipText("Saat: Baþla/Dur -- (ESC)");
-        but1.addActionListener(ear);
-        but1.addKeyListener(ear);
+        but1.addActionListener(control);
+        but1.addKeyListener(control);
         but2.setFont(MONO);
         but2.setToolTipText("Hýzlý Hareket -- (nokta)");
-        but2.addActionListener(ear);
-        but2.addKeyListener(ear);
+        but2.addActionListener(control);
+        but2.addKeyListener(control);
         
         Dimension dim = new Dimension(12*GAP, 2*GAP);
         Reader rdr = new Reader(FILE);
         // read days
-        if (rdr.dayA!=null && rdr.dayA.length>1) {
-            menuD = new JComboBox(rdr.dayA);  //<String>(rdr.dayA);
+        //if (rdr.dayA!=null && rdr.dayA.length>1) {
+            menuD = new JComboBox(rdr.days());  //<String>(rdr.dayA);
             menuD.setFont(BOLD);
             //menuD.setEditable(true);
-            menuD.addActionListener(ear);
+            menuD.addActionListener(control);
             menuD.setMaximumSize(dim);
-            menuD.addKeyListener(ear);
+            menuD.addKeyListener(control);
             menuD.setToolTipText("GÜN seçimi");
-        }
+        //}
         // read locations
-        if (rdr.locA!=null && rdr.locA.length>1) {
-            menuL = new JComboBox(rdr.locA);  //<Location>(rdr.locA);
+        //if (rdr.locA!=null && rdr.locA.length>1) {
+            menuL = new JComboBox(rdr.locations());  //<Location>(rdr.locA);
             menuL.setFont(BOLD);
-            menuL.addActionListener(ear);
+            menuL.addActionListener(control);
             menuL.setMaximumSize(dim);
-            menuL.addKeyListener(ear);
+            menuL.addKeyListener(control);
             menuL.setToolTipText("YER seçimi");
-            V.setLocation((Location)menuL.getItemAt(0));
-        } 
+            model.setLocation((Location)menuL.getItemAt(0));
+        //} 
         // read methods
-        if (rdr.metA!=null && rdr.metA.length>1) {
-            menuM = new JComboBox(rdr.metA);  //<Method>(rdr.metA);
+        //if (rdr.metA!=null && rdr.metA.length>1) {
+            menuM = new JComboBox(rdr.methods());  //<Method>(rdr.metA);
             menuM.setFont(BOLD);
-            menuM.addActionListener(ear);
+            menuM.addActionListener(control);
             menuM.setMaximumSize(dim);
-            menuM.addKeyListener(ear);
+            menuM.addKeyListener(control);
             menuM.setToolTipText("YÖNTEM seçimi");
-            V.setMethod((Method)menuM.getItemAt(0));
-        }
+            model.setMethod((Method)menuM.getItemAt(0));
+        //}
         
         JPanel p2 = new JPanel();
         p2.setLayout(new BoxLayout(p2, BoxLayout.X_AXIS));
@@ -128,10 +130,10 @@ public class GUI implements Runnable {
         if (menuD!=null) p2.add(menuD);
         p2.add(Box.createHorizontalStrut(GAP));
         if (menuL!=null) p2.add(menuL);
-        else V.setLocation(Location.DEFAULT);
+        else model.setLocation(Location.DEFAULT);
         p2.add(Box.createHorizontalStrut(GAP));
         if (menuM!=null) p2.add(menuM);
-        else V.setMethod(Method.DEFAULT);
+        else model.setMethod(Method.DEFAULT);
         p2.add(Box.createHorizontalStrut(M/2));
         p2.add(but1);
         p2.add(Box.createHorizontalStrut(GAP));
@@ -143,7 +145,7 @@ public class GUI implements Runnable {
         frm.setContentPane(cp);
         frm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frm.setLocation(263, 0);  frm.setResizable(false);
-        frm.addWindowListener(ear);
+        frm.addWindowListener(control);
         
         doTitle(); setState(0); setCurrentTime();  // initialize data
         //lab.setText(new File(FILE).exists()+" "+System.getProperty("user.dir"));
@@ -168,32 +170,30 @@ public class GUI implements Runnable {
     }
     void doColors() {
         x = 0;  // field used in calculation
-        fillColor(2+V.ogle()/K, RED);
-        fillColor(V.ikindi()/K, NOON);
-        graded((V.ikindi()+80)/K, NOON, DARK);
-        fillColor((V.sunset()-40)/K, DARK);
-        graded(V.sunset()/K, DARK, RED);
-        fillColor(V.aksam()/K, RED);
-        graded(-V.imsak()/K, BLUE, Color.BLACK); //yatsi()
-        //System.out.printf("%s: %s %s\n", VER, V.aksam(), -V.imsak());
+        fillColor(2+v_ogle()/K, RED);
+        fillColor(v_ikindi()/K, NOON);
+        graded((v_ikindi()+80)/K, NOON, DARK);
+        fillColor((model.sunset()-40)/K, DARK);
+        graded(model.sunset()/K, DARK, RED);
+        fillColor(v_aksam()/K, RED);
+        graded(-v_imsak()/K, BLUE, Color.BLACK);  //v_yatsi()
+        //System.out.printf("%s: %s %s\n", VER, v_aksam(), v_yatsi());
         fillColor(W, Color.BLACK);
         shadowLength(); setMinute(0);  // noon
     }
     void shadowLength() {
         for (int i=0; i<W; i++) {
-            float a = V.altitude(K*i);
-            int s = Math.round(H2/V.tan(a));
+            float a = model.altitude(K*i);
+            int s = Math.round(H2/model.tan(a));
             shade[i] = (s<0 || s>W ? W : s); // if too large, clip
         }
     }
     void doTitle() {
-        frm.setTitle(V.loc+TITLE+VER);
+        frm.setTitle(model.loc+TITLE+VER);
     }
     public void setDate(String s) { 
-        SimpleDateFormat DATE = new SimpleDateFormat("dd/MM/yy");
-        DATE.setTimeZone(V.loc.zone);
         try {
-            V.setDate(DATE.parse(s));
+            model.setDate(DATE.parse(s));
             setState(120); 
         } catch (ParseException ex) {
             setCurrentTime();
@@ -203,19 +203,19 @@ public class GUI implements Runnable {
         x = m/K;  // pixels
         if (x < -W) x += 2*W;
         if (x >= W) x -= 2*W;
-        long t1 = Math.round((V.noonM + m + 0.5)*60);
-        V.date.setTime(t1*1000);
-        alfa = Math.round(V.altitude(m))+"°";
-        pan.repaint(); 
+        long t1 = Math.round((model.noonM + m + 0.5)*60);
+        model.date.setTime(t1*1000);
+        alfa = Math.round(model.altitude(m))+"°";
+        view.repaint(); 
     }
     public void setCurrentTime() {
         long t = System.currentTimeMillis();
         double d = Timer.toJulian(t);
-        if (V.day != (int)d) {
-            System.out.printf("setCurrentTime: %s %s %n", V.day, d);
-            V.setDate(d, true); //V.report(); 
+        if (model.day != (int)d) {
+            System.out.printf("setCurrentTime: %s %s %n", model.day, d);
+            model.setDate(d, true); //model.report(); 
         }
-        int m = (int)Math.round(t/60/1000 - V.noonM);
+        int m = (int)Math.round(t/60/1000 - model.noonM);
         setMinute(m); 
         if (menuD.getSelectedIndex() > 0)
             menuD.setSelectedIndex(0);
@@ -244,20 +244,20 @@ public class GUI implements Runnable {
             if (state == -1 /*fast*/) {
                 if (x < W-3) setMinute(K*x+2); 
                 else setState(0);
-                lab.setText(V.date.HHmm()); 
+                lab.setText(model.date.HHmm()); 
             } else if (state == 1) {
                 setState(0);
             } else if (state > 0) {
                 state--; 
                 if (state%4 == 3) { // every second
                     String t = ((state/4%2) == 0? ". " : " .");
-                    lab.setText(V.date.HHmm()+t); //motion
+                    lab.setText(model.date.HHmm()+t); //motion
                 }
             } else if (state == 0) { // clock mode
                 c--; if (c > 0) continue; // every second
                 c = 4;
-                V.date.setTime(System.currentTimeMillis());
-                String s = V.date.HHmmss(); 
+                model.date.setTime(System.currentTimeMillis());
+                String s = model.date.HHmmss(); 
                 lab.setText(s); //show seconds
                 String hhmm = s.substring(0, 5);
                 if (!hhmm.equals(last)) {
@@ -272,8 +272,12 @@ public class GUI implements Runnable {
         }
     }
     public String toString() {
-        return V.toString();
+        return model.toString();
     }
+    int v_imsak()  { return model.v_imsak(); }
+    int v_ogle()   { return model.v_ogle(); }
+    int v_ikindi() { return model.v_ikindi(); }
+    int v_aksam()  { return model.v_aksam(); }
     
     class Panel extends JPanel {  // View
         void line(Graphics g, int i, Color c) {
@@ -289,15 +293,15 @@ public class GUI implements Runnable {
             int[] b = {H1+H2+DELTA+1, H1+H2+1, H1+H2+DELTA+1};
             g.fillPolygon(a, b, 3);
             g.setColor(Color.YELLOW); g.setFont(LARGE);
-            g.drawString(V.date.ddMMyyyy(), GAP, y); 
-            g.drawString(V.loc.toString(), GAP, 2*y);
+            g.drawString(model.date.ddMMyyyy(), GAP, y); 
+            g.drawString(model.loc.toString(), GAP, 2*y);
             g.drawString(alfa, 2*W-90/K, y);
             for (int i=0; i<W; i++)  // draw colors
                 line(g, i, col[i]);
             g.drawLine(0, H1, 0, H1+H2); // missing line at the left
         }
         void drawCurve(Graphics g) {
-            int down = curve[(int)V.sunset/K+DELTA] - DELTA - H1; //
+            int down = curve[(int)model.sunset/K+DELTA] - DELTA - H1; //
             g.setColor(Color.GRAY);
             int x1 = 0; int y1 = curve[x1] - down;
             while (x1 < W) {
@@ -317,7 +321,7 @@ public class GUI implements Runnable {
             if (night) g.setColor(Color.WHITE); 
             else g.setColor(Color.BLACK);
             g.setFont(NORM);
-            int min = V.twelve - 12*60; //12 hours
+            int min = model.twelve - 12*60; //12 hours
             int c = 0; // start at 12am
             for (int i=min; i<-min; i+=60) {
                 int x = W + i/K;
@@ -334,7 +338,7 @@ public class GUI implements Runnable {
             //System.out.printf("min=%s count=%s \n", min, c);
         }
         void drawShadow(Graphics g) {
-            int z = V.ogle()/K;
+            int z = v_ogle()/K;
             int d = (x>z? -1 : 1);  // direction of the shadow
             int x1 = W+1 + d*z;
             int x2 = x1+ d*shade[Math.abs(x)];
@@ -343,9 +347,9 @@ public class GUI implements Runnable {
             g.drawLine(x1, y-1, x2, y-1); 
         }
         protected void paintComponent(Graphics g) {
-            //g.setColor(pan.getBackground());
+            //g.setColor(view.getBackground());
             g.clearRect(0, 0, 2*W+GAP, H1+2*H2);
-            if (Math.abs(K*x) < V.aksam()) { // day
+            if (Math.abs(K*x) < v_aksam()) { // day
                 g.setColor(BLUE);
                 g.fillRect(0, 0, 2*W, H1);
         try { // protection against unexpected errors
@@ -389,13 +393,13 @@ public class GUI implements Runnable {
             } else if (src == menuL) {
                 int j = menuL.getSelectedIndex();
                 Location a = (Location)menuL.getItemAt(j);
-                System.out.println(a+"  "+V.meth);
-                V.setLocation(a); resume(m);
+                System.out.println(a+"  "+model.meth);
+                model.setLocation(a); resume(m);
             } else if (src == menuM) {
                 int j = menuM.getSelectedIndex();
                 Method d = (Method)menuM.getItemAt(j);
-                System.out.println(V.loc+"  "+d);
-                V.setMethod(d); resume(m);
+                System.out.println(model.loc+"  "+d);
+                model.setMethod(d); resume(m);
             } else {
                 System.out.println(src.getClass());
             }

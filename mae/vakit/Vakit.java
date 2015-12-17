@@ -7,7 +7,7 @@ public class Vakit extends Sunrise {
     // gün ortasý ile namaz vakitleri arasýndaki dakika farký 
     float[] time = new float[6];
     int twelve;  // gün ortasý ile öðle 12 arasýndaki dakika farký  
-    GUI gui;  //boolean trace;
+    GUI gui; 
     
     public Vakit(GUI g) { gui = g; }
     public void setMethod(Method m) {
@@ -37,26 +37,23 @@ public class Vakit extends Sunrise {
         return loc+" için "+meth+" Namaz Vakitleri \n"
             + "Gun          gunes   ogle    aksam   yatsi";
     }
-    int imsak()  { return Math.round(time[0]); }
-    int gunes()  { return Math.round(time[1]); }
-    int ogle()   { return Math.round(time[2]); }
-    int ikindi() { return Math.round(time[3]); }
-    int sunset() { return Math.round(sunset); }
-    int aksam()  { return Math.round(time[4]); }
-    int yatsi()  { return Math.round(time[5]); }
+    public int sunset()   { return Math.round(sunset); }
+    public int v_imsak()  { return Math.round(time[0]); }
+    public int v_gunes()  { return Math.round(time[1]); }
+    public int v_ogle()   { return Math.round(time[2]); }
+    public int v_ikindi() { return Math.round(time[3]); }
+    public int v_aksam()  { return Math.round(time[4]); }
+    public int v_yatsi()  { return Math.round(time[5]); }
     void print(int t) {
         //System.out.printf("  %6s", t); 
         setTime(t); System.out.printf("  %6s", date.HHmm()); 
     }
     public void report() {
         System.out.print(date.ddMMyyyy()); 
-        print(gunes()); print(ogle()); print(aksam()); print(yatsi()); 
+        print(v_gunes()); print(v_ogle()); print(v_aksam()); print(v_yatsi()); 
         System.out.println(); 
-        //if (!trace) return;
-        //for (Object st : Thread.currentThread().getStackTrace()) 
-            //System.out.println(st); 
     }
-    String plotTitle() { return loc+" -- Öðle-Akþam-Yatsý"; }
+    String plotTitle() { return loc+" -- Ögle-Aksam-Yatsi"; }
     void putData(double[][] X, int i) {
             X[1][i] = noonF + time[2]; 
             X[2][i] = noonF + time[4]; 
@@ -68,7 +65,7 @@ public class Vakit extends Sunrise {
         return date.ddMMyyyy() +" "+ loc;
     }
 
-    public static Class getMethods() { return Method.class; }
+    //public static Class getMethods() { return Method.class; }
     public static void main(String[] args) {
         long d = 5478;  //Jan 1, 2015
         new Vakit(null).report(d, 14, d+366); 

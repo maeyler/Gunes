@@ -5,7 +5,10 @@ import java.util.TimeZone;
 public class Location {
 
     final static TimeZone TR = TimeZone.getTimeZone("Turkey");
-    final static Location DEFAULT = new Location("Istanbul", 41, 29, TR);
+    final static Location[] DEFAULTS 
+    = { new Location("Istanbul", 41, 29, TR), new Location("Ankara", 39.9f, 32.9f, TR),
+        new Location("Mekke", 21.4f, 39.8f), new Location("Ekvator", 0, 0) };
+    final static Location DEFAULT = DEFAULTS[0];
 
     String name; float latitude, longitude;  TimeZone zone;
     

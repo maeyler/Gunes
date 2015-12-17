@@ -36,7 +36,7 @@ public class Sunrise extends SunPosition {
     public void report() {
         System.out.print(date.ddMMyyyy());  
         System.out.printf(" %6.1f  %6.1f  %6s", eqTime, declin, date.HHmm()); 
-        setTime(sunset);  //
+        setTime(sunset); 
         System.out.printf("  %6s %n", date.HHmm());
     }
     float timeOf(float a) { 
@@ -58,9 +58,12 @@ public class Sunrise extends SunPosition {
     }
     public String toString() { return str; }
     
-    public static void main(String[] args) {
+    public static void sunrise() {
         long d = 5478;  //Jan 1, 2015
         SunPosition p = new Sunrise();
         p.report(d, 14, d+366);  //p.plot(d);
+    }
+    public static void main(String[] args) {
+        sunrise();
     }
 }

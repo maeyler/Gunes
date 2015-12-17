@@ -48,9 +48,12 @@ public class SunPosition extends Reporter {
          +" "+ timeToSeconds(eqTime) +"  "+ angleToMinutes(declin);
     }
         
-    public static void main(String[] args) {
+    public static void sunPosition() {
         long d = 5478;  //Jan 1, 2015
         SunPosition p = new SunPosition();
         p.report(d, 14, d+366);  //p.plot(d);
+    }
+    public static void main(String[] args) {
+        sunPosition();
     }
 }

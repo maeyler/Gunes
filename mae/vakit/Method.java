@@ -3,8 +3,11 @@ package mae.vakit;
 public class Method { 
     //http://praytimes.org/calculation/#Fajr_and_Isha
     //http://www.tavaf.com/Vakit%20Hesaplama.htm#Temkin
-    final static float[] T = {0,-1, 1, 0, 1, 0};
-    final static Method DEFAULT = new Method("Diyanet", 18, 17);
+    final static float[] T = { 0, 0, 0, 0, 0, 0};
+    final static float[] D = {-2,-6, 7, 4, 8, 2};
+    final static Method[] DEFAULTS 
+    = { new Method("Diyanet", 18, 17, D), new Method("Temkinsiz", 18, 17) }; 
+    final static Method DEFAULT = DEFAULTS[0];
     
     final String name; 
     final float imsakAcisi, yatsiAcisi;
