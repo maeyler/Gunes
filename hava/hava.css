@@ -1,0 +1,95 @@
+body {
+    margin: 0;
+    max-width: 420px;
+    text-align: center;    
+}
+button {
+    cursor: pointer;
+    margin: 12px;
+}
+table {
+    text-align: center;    
+    padding-top: 12px;
+    padding-left: 12px;
+    width: 96%;
+}
+img {
+    vertical-align: middle;
+}
+pre {
+    font-size: 14px;
+}
+.buyuk {
+    font-size: 18px;
+}
+.tahmin {
+    display: inline-block;
+    width: 25%;
+    background: #ffa; 
+    text-align: center;    
+    font: 12px arial, sans-serif;
+    padding: 6px 0;
+    border-bottom: 1px solid black;    
+}
+.kapat {
+    position: absolute;
+    top: 0;
+        right: 0;
+    }
+#main {
+    background: #9cf;
+    font-size: 24px;
+}
+#saat {
+    font-size: 48px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+#diyalog {
+    display: none;
+    position: absolute;
+    top: 190px;
+    left: 10%;
+    width: 80%;
+    background: white; 
+    font: 13px arial, sans-serif;
+    padding-top: 8px;
+    border: 3px double black;    
+}
+#latlon {
+    width: 40%;
+    margin-top: 8px;
+}
+#hava {
+    padding-bottom: 12px;
+}
+#loc {
+    background: #cfc; 
+    font: 14px arial, sans-serif;
+    text-align: center;    
+}
+#detail {
+    float: left;
+    padding: 12px;
+    text-align: left;    
+}
+#prayer {
+    float: right;
+    padding: 12px;
+    text-align: left;    
+}
+.tip {
+    visibility: hidden;
+    position: absolute;
+    font: 11px arial, sans-serif;
+    color: black;
+    background: yellow;
+    border: 1px solid;
+    padding: 6px;
+}
+button:hover .tip { 
+    visibility: visible; 
+}
+span:hover .tip { 
+    visibility: visible; 
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title></title>
+    <meta name="theme-color" content="cyan" />
+    <meta name="author" content="M A Eyler, Istanbul, 2019" />
+    <meta name="description" content="Current weather" />
+    <link rel="icon" sizes="192x192" href="hava.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="hava.css" media="all">
+    <script src="hava.js"></script>
+</head>
+
+<body>
+<div id=main>  <!-- use div: it is better than p -->
+  <div id=saat>time</div>
+  <div id=yer><span id=yer2>location</span>&emsp;
+    <button class=buyuk onClick="diyalog.style.display='block'">↵
+    <span class=tip>Yer belirle</span>
+    </button>
+  </div>
+  <div id=hava><span id=hava2>weather</span> &nbsp;
+    <button class=buyuk onClick=getWeather()>↵
+    <span class=tip>Hava durumunu yenile</span>
+    </button>
+  </div>
+  <div id=diyalog>
+    <b>Set location manually:</b>
+    <button onClick="hideDialog()" class=kapat><b>x</b>
+    </button><br>
+    <span>[Lat,Lon] = 
+      <span class=tip>Enlem ve boylam (köşeli parantez içinde)</span>
+    </span>
+    <input type=text id=latlon
+      onChange="[lat,lon]=eval(latlon.value);getWeather()" />
+    <br><br>
+    <b>or ask the operating system:</b><br>
+    <button onClick="askLocation2()">Approximate
+      <span class=tip>En yakın istasyonu yaklaşık olarak bul</span>
+    </button>
+    <button onClick="askLocation1()">Accurate
+      <span class=tip>En yakın istasyonu GPS ile bul</span>
+    </button>
+  </div>
+</div>
+
+<div id=tahmin>
+</div>
+
+<div id=loc>
+</div>
+
+<div id=detail>
+  <b class=buyuk>Detail</b>
+  <pre id=detay>detail</pre>
+</div>
+<button onClick=getOthers()>Random
+  <span class=tip>Aynı boylamda rastgele yerler göster</span>
+</button>
+<!--button onClick=askForecast()>T
+  <span class=tip>Hava tahmini -- iki günlük</span>
+</button-->
+<div id=prayer>
+  <b class=buyuk>Namaz</b>
+  <pre id=namaz>prayer</pre>
+</div>
+
+<script>
+"use strict";
+    if (navigator.serviceWorker) {
+      if (navigator.serviceWorker.controller)
+        console.log('SW is alredy running')
+      else navigator.serviceWorker
+        .register('https://maeyler.github.io/JS/sw.js')
+        .then((reg) => { console.log('SW Registered', reg.active) })
+        .catch(console.error)
+    }
+    window.onfocus = setHourMin
+    setHourMin(); count(); askLocation2() 
+</script>
+
+</body>
+</html>
