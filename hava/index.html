@@ -59,9 +59,6 @@
 <button onClick=getOthers()>Random
   <span class=tip>Aynı boylamda rastgele yerler göster</span>
 </button>
-<!--button onClick=askForecast()>T
-  <span class=tip>Hava tahmini -- iki günlük</span>
-</button-->
 <div id=prayer>
   <b class=buyuk>Namaz</b>
   <pre id=namaz>prayer</pre>
@@ -73,7 +70,7 @@
       if (navigator.serviceWorker.controller)
         console.log('SW is alredy running')
       else navigator.serviceWorker
-        .register('https://maeyler.github.io/JS/sw.js')
+        .register('sw.js')
         .then((reg) => { console.log('SW Registered', reg.active) })
         .catch(console.error)
     }
