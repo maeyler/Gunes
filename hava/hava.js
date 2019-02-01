@@ -68,7 +68,7 @@ function reportLocation() {
 }
 function askWeather(lat, lon, callback) {
     const url = "https://api.openweathermap.org/data/2.5/weather?"
-    let u = url+"lat="+lat+"&lon="+lon+"&APPID="+KEY;
+    let u = url+"lat="+lat+"&lon="+lon+"&units=metric&APPID="+KEY
     //console.log(u); u = u.replace('/weather','/forecast')
     fetch(u).then(r => r.json()).then(callback)
 }
@@ -95,16 +95,16 @@ function showWeather(data) {
             +", "+data.coord.lon.toFixed(2)+"]"
     latlon.value = loc
     detay.innerText = hh+'\n'+yy+'\n'+loc
-        +'\nWind  '+data.wind.speed+' m/s'
-        +'\nPressure '+data.main.pressure
-        +'\nHumidity '+data.main.humidity+'%'
+        +'\nWind  '+(3.6*data.wind.speed).toFixed(0)+' kph'
+        +'\nPressure '+data.main.pressure.toFixed(0)
+        +'\nHumidity '+data.main.humidity.toFixed(0)+'%'
     let s1 = ss.sunrise, s2 = ss.sunset, nn = (s1+s2)/2
     namaz.innerText = 'Güneş '+toHM(s1, -5)
         +'\nÖğle  '+toHM(nn, +4)+'\nAkşam '+toHM(s2, +6)
 }
 function askForecast() {
     const url = "https://api.openweathermap.org/data/2.5/forecast?"
-    let u = url+"lat="+lat+"&lon="+lon+"&APPID="+KEY;
+    let u = url+"lat="+lat+"&lon="+lon+"&units=metric&APPID="+KEY
     //console.log(u)
     fetch(u).then(r => r.json()).then(showForecast)
 }
@@ -159,8 +159,7 @@ function dToLoc(name, country) {
     return name+', '+country
 }
 function wToText(w, t) {
-    let celsius = convert(t).toFixed(0)
-    return w+"  "+celsius+"°"
+    return w+" "+t.toFixed(0)+"°" //no need to convert
 }
 function convert(kelvin){
     return (kelvin - 273.15);

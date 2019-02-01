@@ -46,7 +46,6 @@ pre {
 #diyalog {
     display: none;
     position: absolute;
-    top: 190px;
     left: 10%;
     width: 80%;
     max-width: 320px;
