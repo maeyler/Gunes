@@ -54,11 +54,22 @@ function getLocation1(p) {
     lat = p.coords.latitude; lon = p.coords.longitude;
     reportLocation()
 }
-function askLocation2() { //extreme-ip -- approximate
-    const u = "https://extreme-ip-lookup.com/json/"
+function askLocation2() { //ipinfo.io -- approximate
+    const u = "https://ipinfo.io/json"
     fetch(u).then(r => r.json()).then(getLocation2)
 }
 function getLocation2(p) {
+    console.log("ipinfo.io", p.city)
+    let a = p.loc.split(',')
+    lat = Number(a[0]); lon = Number(a[1]); 
+    reportLocation()
+}
+function askLocation3() { //extreme-ip -- approximate
+    const u = "https://extreme-ip-lookup.com/json/"
+    fetch(u).then(r => r.json()).then(getLocation3)
+}
+function getLocation3(p) {
+    console.log("extreme-ip", p.city)
     lat = Number(p.lat); lon = Number(p.lon); 
     reportLocation()
 }
@@ -99,8 +110,8 @@ function showWeather(data) {
         +'\nPressure '+data.main.pressure.toFixed(0)
         +'\nHumidity '+data.main.humidity.toFixed(0)+'%'
     let s1 = ss.sunrise, s2 = ss.sunset, nn = (s1+s2)/2
-    namaz.innerText = 'Güneş '+toHM(s1, -5)
-        +'\nÖğle  '+toHM(nn, +4)+'\nAkşam '+toHM(s2, +6)
+    namaz.innerText = 'Güneş '+toHM(s1, -6)
+        +'\nÖğle  '+toHM(nn, +5)+'\nAkşam '+toHM(s2, +7)
 }
 function askForecast() {
     const url = "https://api.openweathermap.org/data/2.5/forecast?"
