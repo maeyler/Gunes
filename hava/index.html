@@ -15,8 +15,9 @@
 
 <body>
 <div id=main>  <!-- use div: it is better than p -->
-  <div id=saat>time</div>
-  <div id=yer><span id=yer2>location</span>&emsp;
+  <div id=version></div>
+  <div id=saat></div>
+  <div id=yer><span id=yer2></span>&emsp;
     <button class=buyuk onClick="diyalog.style.display='block'">↵
     <span class=tip>Yer belirle</span>
     </button>
@@ -75,7 +76,8 @@
         .then((reg) => { console.log('SW Registered', reg.active) })
         .catch(console.error)
     }
-    window.onfocus = setHourMin
+    window.onfocus = setHourMin  //refresh on activate
+    version.innerText = VERSION
     setHourMin(); count(); askLocation2() 
 </script>
 

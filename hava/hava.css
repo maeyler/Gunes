@@ -90,3 +90,11 @@ button:hover .tip {
 span:hover .tip { 
     visibility: visible; 
 }
+#version {
+    position: absolute;
+    font: 10px arial, sans-serif;
+    color: blue;
+    top:  5px;
+    left: 5px;
+}
+

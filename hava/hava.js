@@ -1,5 +1,6 @@
 "use strict";
 const KEY="999d50c94b878b4f0728577fa6a63b1c",
+    VERSION = "V1.1 2019",
     MAX = 12,  //chars in location name
     NUM_LOC = 5, //number of random locations
     LAT_MIN = 10, LAT_MAX = 70, //random latitude limits
@@ -7,6 +8,7 @@ const KEY="999d50c94b878b4f0728577fa6a63b1c",
 var //global values
     hm, //hour-minute string -- update every
     lat, lon, //current coordinates
+    place,  //name of location
     lastw,  //time of last wheather reponse
     other   //array of latitudes -- not used
 function twoDigits(t) {
@@ -52,7 +54,7 @@ function askLocation1() { //ask system -- accurate
 }
 function getLocation1(p) {
     lat = p.coords.latitude; lon = p.coords.longitude;
-    reportLocation()
+    place = ""; reportLocation()
 }
 function askLocation2() { //ipinfo.io -- approximate
     const u = "https://ipinfo.io/json"
@@ -62,7 +64,7 @@ function getLocation2(p) {
     console.log("ipinfo.io", p.city)
     let a = p.loc.split(',')
     lat = Number(a[0]); lon = Number(a[1]); 
-    reportLocation()
+    place = p.city; reportLocation()
 }
 function askLocation3() { //extreme-ip -- approximate
     const u = "https://extreme-ip-lookup.com/json/"
@@ -71,7 +73,7 @@ function askLocation3() { //extreme-ip -- approximate
 function getLocation3(p) {
     console.log("extreme-ip", p.city)
     lat = Number(p.lat); lon = Number(p.lon); 
-    reportLocation()
+    place = p.city; reportLocation()
 }
 function reportLocation() {
     console.log(lat.toFixed(4), lon.toFixed(4))
@@ -101,7 +103,8 @@ function showWeather(data) {
     let hh = wToText(w.main, data.main.temp)
     document.title = hh; console.log(hm, hh)
     hava2.innerHTML = iconToHTML(w.icon)+' '+hh
-    yer2.innerText = yy; console.log(hh, yy)
+    yer2.innerText = place? place : yy
+    console.log(hh, yer2.innerText)
     let loc = "["+data.coord.lat.toFixed(2)
             +", "+data.coord.lon.toFixed(2)+"]"
     latlon.value = loc
