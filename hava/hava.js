@@ -1,6 +1,6 @@
 "use strict";
 const KEY="999d50c94b878b4f0728577fa6a63b1c",
-    VERSION = "V1.1 2019",
+    VERSION = "V1.2 2019",
     MAX = 12,  //chars in location name
     NUM_LOC = 5, //number of random locations
     LAT_MIN = 10, LAT_MAX = 70, //random latitude limits
@@ -46,6 +46,10 @@ function count() {
     if (sec == "00") setHourMin();
     saat.innerText = hm+":"+sec;
     setTimeout(count, 1000);
+}
+function setLocation(ll) {
+    [lat,lon] = eval(ll); //ll is an array within a string 
+    place = ""; getWeather()
 }
 function askLocation1() { //ask system -- accurate
     if (navigator.geolocation)

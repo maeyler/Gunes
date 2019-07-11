@@ -35,8 +35,7 @@
     <span>[Lat,Lon] = 
       <span class=tip>Enlem ve boylam (köşeli parantez içinde)</span>
     </span>
-    <input type=text id=latlon
-      onChange="[lat,lon]=eval(latlon.value);getWeather()" />
+    <input type=text id=latlon onChange="setLocation(value)" />
     <br><br>
     <b>or ask the operating system:</b><br>
     <button onClick="askLocation2()">Approximate
