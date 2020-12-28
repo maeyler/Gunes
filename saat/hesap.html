@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="icon" href="/JS/images/JS.png">
+    <title>Güneş Saati </title>
+    
+  <style>
+    body { max-width: 600px; }
+    #tarih { width: 125px; }
+    #mahal { width: 200px; }
+    #sample { overflow-x: auto; }
+    #out { color:  blue; }
+  </style>
+</head>
+
+<body>
+<h2 id=title></h2>
+<p>Gün
+    <input id=tarih type=date min="2000-01-01" 
+        onchange="setDate(new Date(value))">
+    &emsp; <input type=button value=Yıllık
+        onclick="sunrise(G.day.num)">
+</p>
+<p>
+    Enlem/Boylam/Saat dilimi<br>
+    <input id=mahal type=text value="41 29 +3"
+        onchange="setLocation(value)">
+</p>
+<pre id=out></pre>
+<hr />
+<b>Sample code</b>
+<pre id=sample></pre>
+<hr />
+<p>Ref: <a href="https://en.wikipedia.org/wiki/Position_of_the_Sun" 
+   target="NewTab">Position of the Sun</a>
+</p>
+<script src="hesap.js"></script>
+<script>
+"use strict"
+const G = new Sunrise()  //global
+function setDate(date) {
+    G.setDay(new Day(date))
+    tarih.value = G.day.str
+    out.innerText += '\n'+G.toString()
+    console.log(G.day.toString())
+}
+function setLocation(str) {
+    G.setLoc(Location.fromString(str))
+    out.innerText += '\n('+G.loc+')'
+    console.log(G.loc.toString())
+}
+function sunrise(d=5478) { //Jan 1, 2015
+    let a = []
+    for (let i=0; i<=26; i++) {
+        G.setDay(d + 14*i); a.push(G.toReport())
+    }
+    out.innerText = a.join('\n')
+}
+    title.innerText = document.title
+    sample.innerText = Sunrise +'\n'+ Day
+    setDate(new Date())
+    setLocation(mahal.value)
+    console.log(G)
+</script>
+</body>
+</html>
