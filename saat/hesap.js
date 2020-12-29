@@ -1,24 +1,27 @@
 "use strict"
+const 
+    PI_180 = Math.PI/180, //for radian-degree conversion
+    J2000 = 10958,  //number of days between 1970 and 2000 
+    HEADER = "Day        EqTime Delta Declin  Noon   Sunset"
 /** 
  * Immutable class for latitude, longitude, Time Zone
  **/
 class Location {
-    constructor(lat=0, lon=0, zone) {
-        this.lat = Number(lat)
-        this.lon = Number(lon)
-        if (!zone) zone = -new Date().getTimezoneOffset()/60
-        this.zone = Number(zone)
+    constructor(lat, lon, zone) {
+        this.lat = Number(lat) || 0
+        this.lon = Number(lon) || 0
+     // if (!zone) zone = -new Date().getTimezoneOffset()/60
+        this.zone = Number(zone) || Math.round(lon/15)
     }
     toString() {
-        let s = this.zone<0? '-' : '+'
+        let s = this.zone<0? '' : '+'
         return this.lat+', '+ this.lon+', '+s+this.zone
     }
     static fromString(s) {
-        let [lat, lon, zone] = s.split(/[ ,-]+/)
+        let [lat, lon, zone] = s.split(/[ ,]+/)
         return new Location(lat, lon, zone)
     }
 }
-const J2000 = 10958; //number of days between 1970 and 2000 
 /** 
  * Immutable class for equation of time and declination at d
  **/
@@ -32,26 +35,37 @@ class Day {
         //this date shows the given day at midnight
         this.str = date.getFullYear()+'-'
             +M.d2(date.getMonth()+1)+'-'+M.d2(date.getDate())
+        let {eqTime, declin} = Day.calculate(d)
+        this.eqTime = eqTime; this.declin = declin
+        this.delta = (eqTime - Day.calculate(d+1).eqTime)*60
+    }
+    toString() {
+        return 'Day '+ this.num
+            +', eqTime='+this.eqTime.toFixed(2)+"'"
+            +', declin='+this.declin.toFixed(2)+'°'
+            // +', delta='+this.delta.toFixed(0)+'"'
+    }
+    static fromString(s) {
+        return new Day(new Date(s))
+    }
+    static calculate(d) {
         let g = M.normal(357.529 + 0.98560028*d) //in degrees
         let q = M.normal(280.459 + 0.98564736*d) //365.242 days
         let L = M.normal(q + 1.915*M.sin(g) + 0.020*M.sin(2*g))
-        let e = 23.439  // - 0.00000036* d
+        let e = 23.439 - 0.00000036* d //tiny correction
         let RA = M.normal(M.arctan2(M.cos(e)*M.sin(L), M.cos(L)))
-        this.eqTime = 4*(q - RA)  //equation of time in minutes
-        if (q>300 && RA<50) this.eqTime -= 4*360;
-        this.declin = M.arcsin(M.sin(e)* M.sin(L)) //declination
-    }
-    toString() {
-        return 'Day '+ this.num+' '+ this.str
-            +', eqTime='+this.eqTime.toFixed(4)
-            +', declin='+this.declin.toFixed(4)
+        let eqTime = 4*(q - RA)  //equation of time in minutes
+        if (q>300 && RA<50) eqTime -= 4*360
+        let declin = M.arcsin(M.sin(e)* M.sin(L)) //declination
+        return {eqTime, declin}
     }
 }
 /** 
  * Singleton for noon and sunset at given Location and Day
  * All values are calculated in minutes
  **/
-class Sunrise { //One global instance is enough
+class SunData { //Singleton instance is used
+    constructor() {} //is this really needed?
     setDay(d) { //d is a Day or number of days
         this.day = d instanceof Day? d : new Day(d) 
         this.calculate()
@@ -68,29 +82,23 @@ class Sunrise { //One global instance is enough
         this.altitude = m => M.arcsin(C0*M.cos(m/4) + C1)
         let C0 = M.cos(loc.lat)*M.cos(day.declin)
         let C1 = M.sin(loc.lat)*M.sin(day.declin)
-        this.sunset = this.timeOf(1); //sunset-noon difference
-        let min2000 = (day.num + J2000)*24*60 
-            + 12*60 - day.eqTime - 4*loc.lon
-        this.minutesToStr = m => {
-            let t = (min2000 + m)*60*1000;
-            return new Date(t).toTimeString().substring(0, 5)
-        }
+        this.noon = (12+loc.zone)*60 - 4*loc.lon - day.eqTime
+        this.half = this.timeOf(1); //sunset-noon difference
     }
     toString() {
-        let str = (this.loc? '\n'+'Location: '
-            +this.loc+'\n'+this.toReport() : '')
-        return this.day +str
+        let L = '\nLocation (', R =')\n'
+        return this.day+L+this.loc+R+this.report
     }
-    toReport() {
+    get report() {
         if (!this.loc || !this.day) return 'Not initialized'
         return this.day.str
-            + this.day.eqTime.toFixed(1).padStart(7)
-            + this.day.declin.toFixed(1).padStart(8)
-            + this.minutesToStr(0).padStart(8) //noon
-            + this.minutesToStr(this.sunset).padStart(8)
+            + this.day.eqTime.toFixed(1).padStart(6)+"'"
+            + this.day.delta.toFixed(0).padStart(5)+'"'
+            + this.day.declin.toFixed(1).padStart(6)+'°'
+            + M.toHHMM(this.noon).padStart(7)
+            + M.toHHMM(this.noon+this.half).padStart(7)
     }
 }
-const PI_180 = Math.PI/180 //for radian conversion
 /**
  * Utility class for Math and format static methods
  **/
@@ -107,18 +115,11 @@ class M {
         while (x < 0) x += 360;
         return x;  // 0<=x<360
     }
-    static fraction(t) {
-        let s = ''+Math.round(60*Math.abs(t));
-        if (s.length == 1) s = '0'+s;
-        return s;
+    static toHHMM(m) {
+        m += 0.5 //trunc works like round
+        let h = Math.trunc(m/60)
+        let n = Math.trunc(m-60*h)
+        return M.d2(h)+':'+M.d2(n)
     }
-    static toSixties(t, sep) {
-        let m = Math.trunc(t)
-        let s = m +sep+ M.fraction(t-m);
-        if (m==0 && t<0) s = '-'+s;
-        return s;
-    }
-    static timeToSeconds = t=> M.toSixties(t, ':')
-    static angleToMinutes = t=> M.toSixties(t, '°')+"'"
     static d2 = n => (n<10? '0'+n : ''+n)
 }

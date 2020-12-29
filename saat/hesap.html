@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
-    <link rel="icon" href="/JS/images/JS.png">
+    <link rel="icon" href="noun_Sundial_100731.png">
+    <!-- Created by Evan Shuster from the Noun Project
+        https://thenounproject.com/term/sundial/100731/ -->
     <title>Güneş Saati </title>
     
   <style>
@@ -16,17 +18,19 @@
 </head>
 
 <body>
-<h2 id=title></h2>
+<h3 id=title></h3>
 <p>Gün
     <input id=tarih type=date min="2000-01-01" 
-        onchange="setDate(new Date(value))">
+        onchange="setTime(value)">
     &emsp; <input type=button value=Yıllık
-        onclick="sunrise(G.day.num)">
+        onclick="makeTable(G.day.num)">
 </p>
 <p>
     Enlem/Boylam/Saat dilimi<br>
     <input id=mahal type=text value="41 29 +3"
         onchange="setLocation(value)">
+    &emsp; <input id=sil type=button value=Sil
+        onclick="out.innerText=HEADER">
 </p>
 <pre id=out></pre>
 <hr />
@@ -39,30 +43,31 @@
 <script src="hesap.js"></script>
 <script>
 "use strict"
-const G = new Sunrise()  //global
-function setDate(date) {
-    G.setDay(new Day(date))
+function setTime(str) {
+    G.setDay(Day.fromString(str))
     tarih.value = G.day.str
-    out.innerText += '\n'+G.toString()
-    console.log(G.day.toString())
+    if (G.loc) out.innerText += '\n'+G
+    console.log('setTime', G.day.toString())
 }
 function setLocation(str) {
     G.setLoc(Location.fromString(str))
-    out.innerText += '\n('+G.loc+')'
-    console.log(G.loc.toString())
+    mahal.value = G.loc.toString()
+    out.innerText += '\n'+G.report
+    console.log('setLocation', mahal.value)
 }
-function sunrise(d=5478) { //Jan 1, 2015
-    let a = []
+function makeTable(d=5478) { //Jan 1, 2015
+    let a = [HEADER]
     for (let i=0; i<=26; i++) {
-        G.setDay(d + 14*i); a.push(G.toReport())
+        G.setDay(d+14*i); a.push(G.report)
     }
     out.innerText = a.join('\n')
 }
-    title.innerText = document.title
-    sample.innerText = Sunrise +'\n'+ Day
-    setDate(new Date())
-    setLocation(mahal.value)
-    console.log(G)
+title.innerText = document.title+' V0.1'
+sample.innerText = SunData +'\n'+ Day
+const G = new SunData()  //global
+setTime(new Date()); sil.click()
+setLocation(mahal.value)
+console.log(G)
 </script>
 </body>
 </html>
