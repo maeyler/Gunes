@@ -81,6 +81,8 @@ class SunData { //Singleton instance G is used
         let C1 = M.sin(loc.lat)*M.sin(day.declin)
         this.noon = (12+loc.zone)*60 - 4*loc.lon - day.eqTime
         this.half = this.timeOf(-1); //sunset-noon difference
+        //number of minutes since 1/1/1970, in local time
+        this.base = (J2000 + G.day.num)*1440 - G.loc.zone*60
     }
     toString() {
         let L = '\nLocation (', R =')\n'

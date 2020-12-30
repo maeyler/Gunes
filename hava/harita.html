@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width">
   <link rel="icon" href="hava.png">
-  <title>Hava Durumu V0.1 </title>
+  <title>Hava Durumu V0.2 </title>
   
   <style>
     body {
@@ -36,6 +36,11 @@
     #tarih { width: 125px; }
     #mahal { width: 200px; }
     .renkli { color:  blue; }
+    #map {
+        height:300px; width:100%;
+        box-sizing: border-box;
+        border: 0;
+    }
   </style>
 </head>
 
@@ -58,6 +63,8 @@
    target="NewTab">openweathermap.org</a> 
 </div>
 <hr />
+<div id=map></div>
+<hr />
 <div>
     Gün <input id=tarih type=date min="2000-01-01" 
         onchange="setTime(value)"><br><br>
@@ -69,15 +76,24 @@
 </div>
 <hr />
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
+<!-- Make sure you put JS AFTER CSS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script src="../saat/hesap.js"></script>
 <script>
 "use strict";
-function toHM(t) { // t in seconds
-    let d = new Date((t+30)*1000) //round
-    let h = d.getHours()
-    let m = d.getMinutes()
-    let twoDigits = t => (t>9? '' : '0')+t
-    return twoDigits(h)+":"+twoDigits(m)
+var MAP  //global
+function initMap() {
+    //initial coordinates: start of Boğaziçi
+    let p = {lat:41, lng:29}
+    console.log('init at', p)
+    //L is global object from leaflet
+    MAP = L.map('map').setView(p, 10)  //setZoom(10)
+    let u = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+    let attribution = '&copy; OpenStreetMap contributors'
+    L.tileLayer(u, {attribution}).addTo(MAP)
+    let report = () => out.innerText = MAP.getZoom()
+    // MAP.on('zoom', report); report()
 }
 async function toJSON(url) {
     let r = await fetch(url)
@@ -108,14 +124,13 @@ function getLocation1(p) { //Accurate
 // Weather
 var accessKey;
 async function askWeather() {
-    let {lat, lon} = G.loc
-    console.log(lat, lon); 
+    let {lat, lon} = G.loc; console.log(lat, lon)
     const U = "https://api.openweathermap.org/data/2.5/weather?"
     let url = U+"lat="+lat+"&lon="+lon+"&APPID="+accessKey;
     hava.innerText = "Hava durumu yükleniyor"
     let data = await toJSON(url)
     let w = data.weather[0]; showIcon(w.icon)
-    let celsius = convert(data.main.temp).toFixed(0)
+    let celsius = (data.main.temp - 273.15).toFixed(0)
     let hh = w.main+"  "+celsius+"°", {sys} = data
     let yy = data.name+', '+sys.country
     hava.innerText = hh; yer.innerText = yy
@@ -140,21 +155,20 @@ async function askWeather() {
            'Doğuş '+toHM(sunrise)+localHM(G.noon-G.half)
         +'\nÖğle  '+toHM(noon)   +localHM(G.noon)
         +'\nBatış '+toHM(sunset) +localHM(G.noon+G.half)+`\n
-Siyah sayılar TR saati
+Siyahlar APIden okundu
 <span class=renkli>Maviler yerel hesap</span>`
 }
-function localHM(t) {
+function toHM(t) { // t in seconds -- convert to minutes
+    return M.toHHMM(Math.round(t/60 - G.base))
+}
+function localHM(m) { // m in minutes
     return '<span class=renkli>'
-        +M.toHHMM(t).padStart(8)+'</span>'
+        +M.toHHMM(m).padStart(8)+'</span>'
 }
 function showIcon(i) {
     const URL = "https://openweathermap.org/img/w/"
     icon.src = URL+i+".png"
     document.querySelector('link').href = icon.src
-}
-function convert(kelvin){
-    return (kelvin - 273.15);
-    //return celsius*1.8 + 32
 }
 // Interaction
 function askUser() {
@@ -194,12 +208,20 @@ function setLocation(str, update) {
     // console.log('setLocation')
 }
 err.style.display = "none"
-getAPIkey(); askLocation()
+getAPIkey(); askLocation(); initMap()
 setTime(new Date()) //; sil.click()
 console.log(G)  //global
-mahal.onkeyup = (e) => {
+MAP.on('click', e => {
+    let loc = e.latlng.lat+', '+e.latlng.lng
+    setLocation(loc, true)
+})
+mahal.onkeyup = e => {
   let t = e.target
-  if (e.keyCode === 13) setLocation(t.value, true)
+  if (e.keyCode === 13) {
+      setLocation(t.value, true)
+      let lat = G.loc.lat, lng = G.loc.lon
+      MAP.setView({lat, lng})
+  }
   if (e.keyCode === 27) t.blur()
 }
 
