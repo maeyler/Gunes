@@ -30,7 +30,6 @@ class Day {
         if (d instanceof Date) d = d.valueOf()/86400/1000-J2000
         d = Math.trunc(d)  //calculate at midnight 0:00
         this.num = d  //integer number of days since 1/1/2000
-        //local date -- date.toJSON().split('T')[0] gives UTC
         let date = new Date((d + J2000)*86400*1000)
         //this date shows the given day at midnight
         this.str = date.getFullYear()+'-'
@@ -43,7 +42,6 @@ class Day {
         return 'Day '+ this.num
             +', eqTime='+this.eqTime.toFixed(2)+"'"
             +', declin='+this.declin.toFixed(2)+'°'
-            // +', delta='+this.delta.toFixed(0)+'"'
     }
     static fromString(s) {
         return new Day(new Date(s))
@@ -64,8 +62,7 @@ class Day {
  * Singleton for noon and sunset at given Location and Day
  * All values are calculated in minutes
  **/
-class SunData { //Singleton instance is used
-    constructor() {} //is this really needed?
+class SunData { //Singleton instance G is used
     setDay(d) { //d is a Day or number of days
         this.day = d instanceof Day? d : new Day(d) 
         this.calculate()
@@ -76,14 +73,14 @@ class SunData { //Singleton instance is used
     calculate() {
         if (!this.loc || !this.day) return
         let loc = this.loc, day = this.day 
-        //when does sun reach an angle a below the horizon?
-        this.timeOf = a => 4*M.arccos((-M.sin(a) - C1)/C0)
-        //inverse: G.altitude(G.timeOf(a)) == -a for all a
+        //when does sun reach angle a above the horizon?
+        this.timeOf = a => 4*M.arccos((M.sin(a) - C1)/C0)
+        //inverse: G.altitude(G.timeOf(a)) == a for all a
         this.altitude = m => M.arcsin(C0*M.cos(m/4) + C1)
         let C0 = M.cos(loc.lat)*M.cos(day.declin)
         let C1 = M.sin(loc.lat)*M.sin(day.declin)
         this.noon = (12+loc.zone)*60 - 4*loc.lon - day.eqTime
-        this.half = this.timeOf(1); //sunset-noon difference
+        this.half = this.timeOf(-1); //sunset-noon difference
     }
     toString() {
         let L = '\nLocation (', R =')\n'
@@ -123,3 +120,4 @@ class M {
     }
     static d2 = n => (n<10? '0'+n : ''+n)
 }
+const G = new SunData()  //global object for current data

@@ -6,7 +6,7 @@
     <link rel="icon" href="noun_Sundial_100731.png">
     <!-- Created by Evan Shuster from the Noun Project
         https://thenounproject.com/term/sundial/100731/ -->
-    <title>Güneş Saati </title>
+    <title>Güneş Saati  V0.1</title>
     
   <style>
     body { max-width: 600px; }
@@ -62,12 +62,11 @@ function makeTable(d=5478) { //Jan 1, 2015
     }
     out.innerText = a.join('\n')
 }
-title.innerText = document.title+' V0.1'
+title.innerText = document.title
 sample.innerText = SunData +'\n'+ Day
-const G = new SunData()  //global
 setTime(new Date()); sil.click()
 setLocation(mahal.value)
-console.log(G)
+console.log(G)  //global
 </script>
 </body>
 </html>
