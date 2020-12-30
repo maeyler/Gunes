@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width">
   <link rel="icon" href="hava.png">
-  <title>Hava Durumu V0.2 </title>
+  <title>Hava Durumu V0.3 </title>
   
   <style>
     body {
@@ -66,12 +66,14 @@
 <div id=map></div>
 <hr />
 <div>
-    Gün <input id=tarih type=date min="2000-01-01" 
-        onchange="setTime(value)"><br><br>
+    <!-- Gün <input id=tarih type=date min="2000-01-01" 
+        onchange="setTime(value)"><br><br> -->
     Enlem/Boylam/Saat dilimi<br>
     <input id=mahal type=text value="41 29 +3">
     &emsp; <input id=sil type=button value=Sil
-        onclick="out.innerText=''"><br>
+        onclick="out.innerText=''">
+    &emsp; <input type=button value=Key
+        onclick="replaceKey()"><br>
     <pre id=out class=renkli></pre>
 </div>
 <hr />
@@ -84,15 +86,14 @@
 "use strict";
 var MAP  //global
 function initMap() {
-    //initial coordinates: start of Boğaziçi
-    let p = {lat:41, lng:29}
+    let p = {lat:41, lng:29} //initial coordinates
     console.log('init at', p)
     //L is global object from leaflet
     MAP = L.map('map').setView(p, 10)  //setZoom(10)
     let u = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     let attribution = '&copy; OpenStreetMap contributors'
     L.tileLayer(u, {attribution}).addTo(MAP)
-    let report = () => out.innerText = MAP.getZoom()
+    // let report = () => out.innerText = MAP.getZoom()
     // MAP.on('zoom', report); report()
 }
 async function toJSON(url) {
@@ -148,7 +149,7 @@ async function askWeather() {
         +'\nBasınç '+pres+' mm'
         +'\nNem  %'+data.main.humidity
     let {sunrise, sunset} = sys, noon = (sunrise+sunset)/2
-    out.innerText += '\n'+G.loc
+    out.innerText += '\n'+data.name+': '+G.loc
         + M.toHHMM(G.noon).padStart(7)
         + M.toHHMM(G.noon+G.half).padStart(7)
     gunes.innerHTML = 
@@ -156,7 +157,7 @@ async function askWeather() {
         +'\nÖğle  '+toHM(noon)   +localHM(G.noon)
         +'\nBatış '+toHM(sunset) +localHM(G.noon+G.half)+`\n
 Siyahlar APIden okundu
-<span class=renkli>Maviler yerel hesap</span>`
+<span class=renkli>Maviler hesaplandı</span>`
 }
 function toHM(t) { // t in seconds -- convert to minutes
     return M.toHHMM(Math.round(t/60 - G.base))
@@ -168,7 +169,7 @@ function localHM(m) { // m in minutes
 function showIcon(i) {
     const URL = "https://openweathermap.org/img/w/"
     icon.src = URL+i+".png"
-    document.querySelector('link').href = icon.src
+    // document.querySelector('link').href = icon.src
 }
 // Interaction
 function askUser() {
@@ -181,11 +182,15 @@ function error(e) {
     err.style.display = ''; //show
     throw e
 }
-function getAPIkey() {
+function replaceKey() {
+    let t = confirm('Do you want to replace API key?')
+    if (t) getAPIkey(true)
+}
+function getAPIkey(forced) {
     if (origin.startsWith('http') && localStorage) {
         if (!localStorage.keys) localStorage.keys = '{}'
         let keys = JSON.parse(localStorage.keys)
-        if (!keys.openweather) {
+        if (forced || !keys.openweather) {
            keys.openweather = askUser()
            localStorage.keys = JSON.stringify(keys)
         }
@@ -197,7 +202,7 @@ function getAPIkey() {
 // Calculation
 function setTime(str) {
     G.setDay(Day.fromString(str))
-    tarih.value = G.day.str
+    // tarih.value = G.day.str
     if (G.loc) out.innerText += '\n'+G
     console.log('setTime', G.day.toString())
 }
@@ -209,7 +214,7 @@ function setLocation(str, update) {
 }
 err.style.display = "none"
 getAPIkey(); askLocation(); initMap()
-setTime(new Date()) //; sil.click()
+setTime(new Date())
 console.log(G)  //global
 MAP.on('click', e => {
     let loc = e.latlng.lat+', '+e.latlng.lng
