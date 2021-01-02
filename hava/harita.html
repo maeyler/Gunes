@@ -81,10 +81,12 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
 <!-- Make sure you put JS AFTER CSS -->
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.geodesic"></script>
 <script src="../saat/hesap.js"></script>
 <script>
 "use strict";
-var MAP, marker  //global
+var MAP, marker, geodesic  //global
+const Kabe = new Location(21.422500, 39.826137)
 function initMap() {
     let p = {lat:41, lng:29} //initial coordinates
     console.log('init at', p)
@@ -94,6 +96,8 @@ function initMap() {
     let u = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     let attribution = '&copy; OpenStreetMap contributors'
     L.tileLayer(u, {attribution}).addTo(MAP)
+    const options = {weight:1, color:'red'}
+    geodesic = new L.Geodesic([], options).addTo(MAP)
     // let report = () => out.innerText = MAP.getZoom()
     // MAP.on('zoom', report); report()
 }
@@ -213,8 +217,8 @@ function setLocation(str, update) {
     G.setLoc(Location.fromString(str))
     mahal.value = G.loc.toString()
     if (update) {
-        askWeather()
-        marker.setLatLng(G.loc)
+        askWeather(); marker.setLatLng(G.loc)
+        geodesic.setLatLngs([G.loc, Kabe])
     }
 }
 hesap.innerText += ' '+VERSION
