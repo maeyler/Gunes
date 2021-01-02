@@ -8,19 +8,19 @@ const
  * Immutable class for latitude, longitude, Time Zone
  **/
 class Location {
-    constructor(lat, lon, zone) {
+    constructor(lat, lng, zone) {
         this.lat = Number(lat) || 0
-        this.lon = Number(lon) || 0
+        this.lng = Number(lng) || 0
      // if (!zone) zone = -new Date().getTimezoneOffset()/60
-        this.zone = Number(zone) || Math.round(lon/15)
+        this.zone = Number(zone) || Math.round(lng/15)
     }
     toString() {
         let s = this.zone<0? '' : '+'
-        return this.lat+', '+ this.lon+', '+s+this.zone
+        return this.lat+', '+ this.lng+', '+s+this.zone
     }
     static fromString(s) {
-        let [lat, lon, zone] = s.split(/[ ,]+/)
-        return new Location(lat, lon, zone)
+        let [lat, lng, zone] = s.split(/[ ,]+/)
+        return new Location(lat, lng, zone)
     }
 }
 /** 
@@ -80,7 +80,7 @@ class SunData { //Singleton instance G is used
         this.altitude = m => M.arcsin(C0*M.cos(m/4) + C1)
         let C0 = M.cos(loc.lat)*M.cos(day.declin)
         let C1 = M.sin(loc.lat)*M.sin(day.declin)
-        this.noon = (12+loc.zone)*60 - 4*loc.lon - day.eqTime
+        this.noon = (12+loc.zone)*60 - 4*loc.lng - day.eqTime
         this.half = this.timeOf(-1); //sunset-noon difference
     }
     toString() {

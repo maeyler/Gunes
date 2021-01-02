@@ -19,7 +19,7 @@
     }
     p { margin: 0; }
     b { font-size: 18px; }
-    pre { font-size: 14px; }
+    pre { overflow-x: hidden; }
     #durum { width: 45%; }
     #hesap { width: 52%; }
     #main {
@@ -126,9 +126,9 @@ function getLocation1(p) { //Accurate
 // Weather
 var accessKey;
 async function askWeather() {
-    let {lat, lon} = G.loc; console.log(lat, lon)
+    let {lat, lng} = G.loc; console.log(lat, lng)
     const U = "https://api.openweathermap.org/data/2.5/weather?"
-    let url = U+"lat="+lat+"&lon="+lon+"&APPID="+accessKey;
+    let url = U+"lat="+lat+"&lon="+lng+"&APPID="+accessKey;
     hava.innerText = "Hava durumu yükleniyor"
     let data = await toJSON(url)
     let w = data.weather[0]; showIcon(w.icon)
@@ -137,8 +137,8 @@ async function askWeather() {
     let yy = data.name+', '+sys.country
     hava.innerText = hh; yer.innerText = yy
     console.log(yy, hh, data)
-    lat = data.coord.lat; lon = data.coord.lon
-    let loc = lat.toFixed(2)+", "+lon.toFixed(2)
+    lat = data.coord.lat; lng = data.coord.lon
+    let loc = lat.toFixed(2)+", "+lng.toFixed(2)
     setLocation(loc+", "+data.timezone/3600, false)
     let wind = (3.6*data.wind.speed).toFixed(0)
     let pres = (0.750062*data.main.pressure).toFixed(0)
@@ -214,8 +214,7 @@ function setLocation(str, update) {
     mahal.value = G.loc.toString()
     if (update) {
         askWeather()
-        let lat = G.loc.lat, lng = G.loc.lon
-        marker.setLatLng({lat, lng})
+        marker.setLatLng(G.loc)
     }
 }
 hesap.innerText += ' '+VERSION
@@ -231,8 +230,7 @@ mahal.onkeyup = e => {
   let t = e.target
   if (e.keyCode === 13) {
       setLocation(t.value, true)
-      let lat = G.loc.lat, lng = G.loc.lon
-      MAP.setView({lat, lng})
+      MAP.setView(G.loc)
   }
   if (e.keyCode === 27) t.blur()
 }
