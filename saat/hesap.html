@@ -54,13 +54,13 @@ function setTime(str) {
 function setLocation(str) {
     G.setLoc(Location.fromString(str))
     mahal.value = G.loc.toString()
-    out.innerText += '\n'+G.report
+    out.innerText += '\n'+F.report()
     console.log('setLocation', mahal.value)
 }
 function makeTable(d=5478, g=1) { //Jan 1, 2015
     let a = [HEADER]
     for (let i=0; i<=26; i++) {
-        G.setDay(d+g*i); a.push(G.report)
+        G.setDay(d+g*i); a.push(F.report())
     }
     out.innerText = a.join('\n')
 }

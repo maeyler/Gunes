@@ -1,6 +1,6 @@
 "use strict"
 const
-    VERSION = 'V0.4',
+    VERSION = 'V0.5',
     PI_180 = Math.PI/180, //for radian-degree conversion
     J2000 = 10958,  //number of days between 1970 and 2000 
     HEADER = "Day        EqTime Delta Declin  Noon   Sunset"
@@ -34,7 +34,7 @@ class Day {
         let date = new Date((d + J2000)*86400*1000)
         //this date shows the given day at midnight
         this.str = date.getFullYear()+'-'
-            +M.d2(date.getMonth()+1)+'-'+M.d2(date.getDate())
+            +F.d2(date.getMonth()+1)+'-'+F.d2(date.getDate())
         let {eqTime, declin} = Day.calculate(d)
         this.eqTime = eqTime; this.declin = declin
         this.delta = (eqTime - Day.calculate(d+1).eqTime)*60
@@ -84,21 +84,11 @@ class SunData { //Singleton instance G is used
         this.half = this.timeOf(-1); //sunset-noon difference
     }
     toString() {
-        let L = '\nLocation (', R =')\n'
-        return this.day+L+this.loc+R+this.report
-    }
-    get report() {
-        if (!this.loc || !this.day) return 'Not initialized'
-        return this.day.str
-            + this.day.eqTime.toFixed(1).padStart(6)+"'"
-            + this.day.delta.toFixed(0).padStart(5)+'"'
-            + this.day.declin.toFixed(1).padStart(6)+'°'
-            + M.toHHMM(this.noon).padStart(7)
-            + M.toHHMM(this.noon+this.half).padStart(7)
+        return this.day+'\nLoc ('+this.loc+')\n'+F.report()
     }
 }
 /**
- * Utility class for Math and format static methods
+ * Utility class for Math -- static methods
  **/
 class M {
     //all data is in degrees, converted to radians
@@ -113,12 +103,26 @@ class M {
         while (x < 0) x += 360;
         return x;  // 0<=x<360
     }
+}
+/**
+ * Utility class for format -- static methods
+ **/
+class F {
     static toHHMM(m) {
         m += 0.5 //trunc avoids 7:60
         let h = Math.trunc(m/60)
         let n = Math.trunc(m-60*h)
-        return M.d2(h)+':'+M.d2(n)
+        return F.d2(h)+':'+F.d2(n)
     }
     static d2 = n => (n<10? '0'+n : ''+n)
+    static report() {
+        // if (!this.loc || !this.day) return 'Not initialized'
+        return G.day.str
+            + G.day.eqTime.toFixed(1).padStart(6)+"'"
+            + G.day.delta.toFixed(0).padStart(5)+'"'
+            + G.day.declin.toFixed(1).padStart(6)+'°'
+            + F.toHHMM(G.noon).padStart(7)
+            + F.toHHMM(G.noon+G.half).padStart(7)
+    }
 }
 const G = new SunData()  //global object for current data
