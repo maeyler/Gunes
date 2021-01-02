@@ -1,5 +1,6 @@
 "use strict"
-const 
+const
+    VERSION = 'V0.4',
     PI_180 = Math.PI/180, //for radian-degree conversion
     J2000 = 10958,  //number of days between 1970 and 2000 
     HEADER = "Day        EqTime Delta Declin  Noon   Sunset"
@@ -81,8 +82,6 @@ class SunData { //Singleton instance G is used
         let C1 = M.sin(loc.lat)*M.sin(day.declin)
         this.noon = (12+loc.zone)*60 - 4*loc.lon - day.eqTime
         this.half = this.timeOf(-1); //sunset-noon difference
-        //number of minutes since 1/1/1970, in local time
-        this.base = (J2000 + G.day.num)*1440 - G.loc.zone*60
     }
     toString() {
         let L = '\nLocation (', R =')\n'
@@ -115,7 +114,7 @@ class M {
         return x;  // 0<=x<360
     }
     static toHHMM(m) {
-        m += 0.5 //trunc works like round
+        m += 0.5 //trunc avoids 7:60
         let h = Math.trunc(m/60)
         let n = Math.trunc(m-60*h)
         return M.d2(h)+':'+M.d2(n)

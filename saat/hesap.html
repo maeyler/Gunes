@@ -6,7 +6,7 @@
     <link rel="icon" href="noun_Sundial_100731.png">
     <!-- Created by Evan Shuster from the Noun Project
         https://thenounproject.com/term/sundial/100731/ -->
-    <title>Güneş Saati  V0.1</title>
+    <title>Güneş Saati </title>
     
   <style>
     body { max-width: 600px; }
@@ -22,8 +22,10 @@
 <p>Gün
     <input id=tarih type=date min="2000-01-01" 
         onchange="setTime(value)">
-    &emsp; <input type=button value=Yıllık
-        onclick="makeTable(G.day.num)">
+    &emsp; <input type=button value=Günlük
+        onclick="makeTable(G.day.num, 1)">
+        &emsp; <input type=button value=Yıllık
+        onclick="makeTable(G.day.num, 14)">
 </p>
 <p>
     Enlem/Boylam/Saat dilimi<br>
@@ -55,14 +57,14 @@ function setLocation(str) {
     out.innerText += '\n'+G.report
     console.log('setLocation', mahal.value)
 }
-function makeTable(d=5478) { //Jan 1, 2015
+function makeTable(d=5478, g=1) { //Jan 1, 2015
     let a = [HEADER]
     for (let i=0; i<=26; i++) {
-        G.setDay(d+14*i); a.push(G.report)
+        G.setDay(d+g*i); a.push(G.report)
     }
     out.innerText = a.join('\n')
 }
-title.innerText = document.title
+title.innerText = document.title+' '+VERSION
 sample.innerText = SunData +'\n'+ Day
 setTime(new Date()); sil.click()
 setLocation(mahal.value)

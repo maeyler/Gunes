@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width">
   <link rel="icon" href="hava.png">
-  <title>Hava Durumu V0.3 </title>
+  <title>Hava Durumu </title>
   
   <style>
     body {
@@ -54,8 +54,8 @@
   <b>Hava durumu</b>
   <pre id=detay>detail</pre>
 </div>
-<div id=hesap>
-  <b>Güneş hesabı</b>
+<div>
+  <b id=hesap>Güneş hesabı</b>
   <pre id=gunes>sunrise</pre>
 </div>
 <div id=err>API key gerekiyor: 
@@ -84,12 +84,13 @@
 <script src="../saat/hesap.js"></script>
 <script>
 "use strict";
-var MAP  //global
+var MAP, marker  //global
 function initMap() {
     let p = {lat:41, lng:29} //initial coordinates
     console.log('init at', p)
     //L is global object from leaflet
     MAP = L.map('map').setView(p, 10)  //setZoom(10)
+    marker = L.marker(p).addTo(MAP)
     let u = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     let attribution = '&copy; OpenStreetMap contributors'
     L.tileLayer(u, {attribution}).addTo(MAP)
@@ -160,7 +161,9 @@ Siyahlar APIden okundu
 <span class=renkli>Maviler hesaplandı</span>`
 }
 function toHM(t) { // t in seconds -- convert to minutes
-    return M.toHHMM(Math.round(t/60 - G.base))
+    //number of minutes since 1/1/1970, in local time
+    //this.base = (J2000 + G.day.num)*1440 - G.loc.zone*60
+    return M.toHHMM(((t + 3600*G.loc.zone)%86400)/60)
 }
 function localHM(m) { // m in minutes
     return '<span class=renkli>'
@@ -209,9 +212,13 @@ function setTime(str) {
 function setLocation(str, update) {
     G.setLoc(Location.fromString(str))
     mahal.value = G.loc.toString()
-    if (update) askWeather()
-    // console.log('setLocation')
+    if (update) {
+        askWeather()
+        let lat = G.loc.lat, lng = G.loc.lon
+        marker.setLatLng({lat, lng})
+    }
 }
+hesap.innerText += ' '+VERSION
 err.style.display = "none"
 getAPIkey(); askLocation(); initMap()
 setTime(new Date())
