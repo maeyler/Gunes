@@ -1,6 +1,6 @@
 "use strict"
 const
-    VERSION = 'V0.5',
+    VERSION = 'V0.6',
     PI_180 = Math.PI/180, //for radian-degree conversion
     J2000 = 10958,  //number of days between 1970 and 2000 
     HEADER = "Day        EqTime Delta Declin  Noon   Sunset"
@@ -116,7 +116,6 @@ class F {
     }
     static d2 = n => (n<10? '0'+n : ''+n)
     static report() {
-        // if (!this.loc || !this.day) return 'Not initialized'
         return G.day.str
             + G.day.eqTime.toFixed(1).padStart(6)+"'"
             + G.day.delta.toFixed(0).padStart(5)+'"'

@@ -36,10 +36,9 @@
     #mahal { width: 200px; }
     .renkli { color:  blue; }
     #temkin {
-        width: 100px;
         display: none;
         position: absolute;
-        top: 220px;
+        top: 228px;
         border: 1px solid;
         padding: 6px;
         background: #cff;
@@ -105,7 +104,7 @@ function initMap() {
     let u = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
     let attribution = '&copy; OpenStreetMap contributors'
     L.tileLayer(u, {attribution}).addTo(MAP)
-    const options = {weight:1, color:'red'}
+    const options = {weight:1, color:'blue'}
     geodesic = new L.Geodesic([], options).addTo(MAP)
     // let report = () => out.innerText = MAP.getZoom()
     // MAP.on('zoom', report); report()
@@ -149,7 +148,7 @@ async function askWeather() {
     let hh = w.main+"  "+celsius+"°", {sys} = data
     let yy = data.name+', '+sys.country
     hava.innerText = hh; yer.innerText = yy
-    console.log(yy, hh, data)
+    console.log(yy, hh)  //, data)
     lat = data.coord.lat; lng = data.coord.lon
     let loc = lat.toFixed(2)+", "+lng.toFixed(2)
     setLocation(loc+", "+data.timezone/3600, false)
@@ -231,11 +230,12 @@ function setLocation(str, update) {
     if (update) {
         askWeather(); marker.setLatLng(G.loc)
         geodesic.setLatLngs([G.loc, Kabe])
+        MAP.setView(G.loc)
     }
 }
 hesap.innerText += ' '+VERSION
 err.style.display = "none"
-getAPIkey(); askLocation(); initMap()
+getAPIkey(false); askLocation(); initMap()
 setTime(new Date())
 console.log(G)  //global
 MAP.on('click', e => {
