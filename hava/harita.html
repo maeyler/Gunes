@@ -208,13 +208,13 @@ function replaceKey() {
 }
 function getAPIkey(forced) {
     if (origin.startsWith('http') && localStorage) {
-        if (!localStorage.keys) localStorage.keys = '{}'
-        let keys = JSON.parse(localStorage.keys)
-        if (forced || !keys.openweather) {
-           keys.openweather = askUser()
-           localStorage.keys = JSON.stringify(keys)
+        if (location.hash.startsWith('#key=')) 
+          localStorage.hava = location.hash.substring(5)
+        console.log(forced, localStorage.hava)
+        if (forced || !localStorage.hava) {
+          localStorage.hava = askUser()
         }
-        accessKey = keys.openweather
+        accessKey = localStorage.hava
     } else { //cannot use localStorage
         accessKey = askUser()
     }
@@ -239,7 +239,9 @@ getAPIkey(); askLocation(); initMap()
 setTime(new Date())
 console.log(G)  //global
 MAP.on('click', e => {
-    let y = M.normal(e.latlng.lng)
+    let y = e.latlng.lng
+    if (y > 180) y -= 360
+    if (y <-180) y += 360
     setLocation(e.latlng.lat+', '+y, true)
 })
 mahal.onkeyup = e => {
