@@ -32,7 +32,6 @@
     }
     #yer { margin: 10px; }
     #err { color:red }
-    #tarih { width: 125px; }
     #mahal { width: 200px; }
     .renkli { color:  blue; }
     #temkin {
@@ -74,12 +73,10 @@
 <div id=map></div>
 <hr />
 <div>
-    <!-- Gün <input id=tarih type=date min="2000-01-01" 
-        onchange="setTime(value)"><br><br> -->
     Enlem/Boylam/Saat dilimi<br>
     <input id=mahal type=text value="41 29 +3">
     &emsp; <input id=sil type=button value=Sil
-        onclick="out.innerText=''">
+        onclick="out.innerText=''+G">
     &emsp; <input type=button value=Key
         onclick="replaceKey()"><br>
     <pre id=out class=renkli></pre>
@@ -94,7 +91,6 @@
 <script>
 "use strict";
 var MAP, marker, geodesic  //global
-const Kabe = new Location(21.422500, 39.826137)
 function initMap() {
     let p = {lat:41, lng:29} //initial coordinates
     console.log('init at', p)
@@ -161,29 +157,27 @@ async function askWeather() {
         +'\nYönü   '+data.wind.deg+'° '+WIND[d]
         +'\nBasınç '+pres+' mm'
         +'\nNem  %'+data.main.humidity
-    let {sunrise, sunset} = sys, noon = (sunrise+sunset)/2
-    out.innerText += '\n'+data.name+': '+G.loc
-        + F.toHHMM(G.noon).padStart(7)
-        + F.toHHMM(G.noon+G.half).padStart(7)
-    gunes.innerHTML = 
-           'Doğuş '+toHM(sunrise)+localHM(G.noon-G.half)
-        +'\nÖğle  '+toHM(noon)   +localHM(G.noon)
-        +'\nBatış '+toHM(sunset) +localHM(G.noon+G.half)
-    +'\n\nSiyahlar APIden \n<span class=renkli>Maviler hesapla</span>'
-    temkin.innerHTML = '<b>Diyanet</b>'
-        +'\nGüneş '+ F.toHHMM(G.noon-G.half-6)
-        +'\nÖğle  '+ F.toHHMM(G.noon+6)
-        +'\nAkşam '+ F.toHHMM(G.noon+G.half+7)
+    let str = data.name.substring(0,10)+': '
+    out.innerText += '\n'+F.summary(str)
+    gunes.innerHTML = comparison(sys)
+    temkin.innerHTML = F.vakit()
     mahal.value = G.loc.toString()
 }
-function toHM(t) { // t in seconds -- convert to minutes
+function comparison(sys) {
+  function toHM(t) { // t in seconds -- convert to minutes
     //number of minutes since 1/1/1970, in local time
     //this.base = (J2000 + G.day.num)*1440 - G.loc.zone*60
     return F.toHHMM(((t + 3600*G.loc.zone)%86400)/60)
-}
-function localHM(m) { // m in minutes
+  }
+  function localHM(m) { // m in minutes
     return '<span class=renkli>'
         +F.toHHMM(m).padStart(8)+'</span>'
+  }
+    let {sunrise, sunset} = sys, noon = (sunrise+sunset)/2
+    return 'Doğuş '+toHM(sunrise)+localHM(G.noon-G.half)
+        +'\nÖğle  '+toHM(noon)   +localHM(G.noon)
+        +'\nBatış '+toHM(sunset) +localHM(G.noon+G.half)
+    +'\n\nSiyahlar APIden \n<span class=renkli>Maviler hesapla</span>'
 }
 function showIcon(i) {
     const URL = "https://openweathermap.org/img/w/"
@@ -221,8 +215,7 @@ function getAPIkey(forced) {
 // Calculation
 function setTime(str) {
     G.setDay(Day.fromString(str))
-    // tarih.value = G.day.str
-    if (G.loc) out.innerText += '\n'+G
+    out.innerText += '\n'+G.toString()
     console.log('setTime', G.day.toString())
 }
 function setLocation(str, update) {
@@ -239,10 +232,11 @@ getAPIkey(false); askLocation(); initMap()
 setTime(new Date())
 console.log(G)  //global
 MAP.on('click', e => {
+    let x = e.latlng.lat
     let y = e.latlng.lng
     if (y > 180) y -= 360
     if (y <-180) y += 360
-    setLocation(e.latlng.lat+', '+y, true)
+    setLocation(x+', '+y, true)
 })
 mahal.onkeyup = e => {
   let t = e.target

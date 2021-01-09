@@ -22,17 +22,17 @@
 <p>Gün
     <input id=tarih type=date min="2000-01-01" 
         onchange="setTime(value)">
-    &emsp; <input type=button value=Günlük
-        onclick="makeTable(G.day.num, 1)">
+    &emsp; <input type=button value=Aylık
+        onclick="makeTable(G.day.num, 31, 1)">
         &emsp; <input type=button value=Yıllık
-        onclick="makeTable(G.day.num, 14)">
+        onclick="makeTable(G.day.num, 27, 14)">
 </p>
 <p>
     Enlem/Boylam/Saat dilimi<br>
     <input id=mahal type=text value="41 29 +3"
         onchange="setLocation(value)">
     &emsp; <input id=sil type=button value=Sil
-        onclick="out.innerText=HEADER">
+        onclick="out.innerText=''+G">
 </p>
 <pre id=out></pre>
 <hr />
@@ -48,25 +48,26 @@
 function setTime(str) {
     G.setDay(Day.fromString(str))
     tarih.value = G.day.str
-    if (G.loc) out.innerText += '\n'+G
-    console.log('setTime', G.day.toString())
+    out.innerText += '\n'+G.toString()
+    console.log('setTime', G.day.str)
 }
 function setLocation(str) {
     G.setLoc(Location.fromString(str))
     mahal.value = G.loc.toString()
-    out.innerText += '\n'+F.report()
+    out.innerText += '\nLoc '+F.summary()
     console.log('setLocation', mahal.value)
 }
-function makeTable(d=5478, g=1) { //Jan 1, 2015
+function makeTable(d=5478, n=27, g=1) { //Jan 1, 2015
     let a = [HEADER]
-    for (let i=0; i<=26; i++) {
+    for (let i=0; i<n; i++) {
         G.setDay(d+g*i); a.push(F.report())
     }
+    tarih.value = G.day.str
     out.innerText = a.join('\n')
 }
 title.innerText = document.title+' '+VERSION
 sample.innerText = SunData +'\n'+ Day
-setTime(new Date()); sil.click()
+setTime(new Date())
 setLocation(mahal.value)
 console.log(G)  //global
 </script>
