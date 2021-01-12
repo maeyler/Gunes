@@ -89,7 +89,7 @@ class SunData { //Singleton instance G is used
         return s
     }
 }
-const Kabe = new Location(21.422500, 39.826137, 2)
+const Kabe = new Location(21.422500, 39.826137, 3)
 /**
  * Utility class for Math -- static methods
  **/
@@ -101,10 +101,11 @@ class M {
     static arccos = x => Math.acos(x) / PI_180
     static arcsin = x => Math.asin(x) / PI_180
     static arctan2 = (x, y) => Math.atan2(x, y) / PI_180
-    static qiblah({lat, lng}) {
-        let d = lng - Kabe.lng
-        let y = M.sin(lat)*M.cos(d) - M.cos(lat)*M.tan(Kabe.lat)
-        return M.arctan2(M.sin(d), y).toFixed(2)
+    static qiblah(p) {
+        let d = p.lng - Kabe.lng
+        let x = M.sin(p.lat)*M.cos(d)
+        let y = M.cos(p.lat)*M.tan(Kabe.lat)
+        return M.arctan2(M.sin(d), x-y).toFixed(2)
     }
     static normal(x) {
         while (x >= 360) x -= 360;
