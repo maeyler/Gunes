@@ -46,6 +46,7 @@
         height:300px; width:100%;
         box-sizing: border-box;
         border: 0;
+        cursor: crosshair;
     }
   </style>
 </head>
@@ -234,9 +235,7 @@ console.log(G)  //global
 MAP.on('click', e => {
     let x = e.latlng.lat
     let y = e.latlng.lng
-    if (y > 180) y -= 360
-    if (y <-180) y += 360
-    setLocation(x+', '+y, true)
+    console.log('\t'+x.toFixed(4)+'\t'+y.toFixed(4))
 })
 mahal.onkeyup = e => {
   let t = e.target
